@@ -1,12 +1,27 @@
-# NOVA Video Editing
+# 🎬 NOVA Video Editing
 
-## Installation
+## 📦 Installation
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager. Install it first, then set up the project:
+
+```bash
+# Initialize project with Python 3.12
+uv init --python 3.12
+
+# Create virtual environment
+uv venv
+
+# Install dependencies
+uv add -r requirements.txt
+```
+
+Or if you prefer pip:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Model Download
+## 📥 Model Download
 
 Download the required pre-trained models:
 
@@ -14,15 +29,15 @@ Download the required pre-trained models:
 python download_wan2.1.py
 ```
 
-## Dataset Format
-### Create Keyframes Videos
+## 📁 Dataset Format
+### 🎬 Create Keyframes Videos
 We assume all the videos for training and inference are 81 frames long.
 
 For the keyframes video:
   - In training, extract the 0, 10, 20, 30, 40, 50, 60, 70, 80 frames from the source video to create the keyframes video. You can left the remaining frames black or blank.
   - In inference, you can set the 0 frame as the edited first frame via a image editing model. The 10, 20, 30, 40, 50, 60, 70, 80 frames can be also set as the edited frames from the source video (optional), and the remaining frames can be left black or blank.
 
-### Training Dataset
+### 📊 Training Dataset
 
 Create a CSV file (e.g., `metadata.csv`) with the following columns:
 
@@ -57,7 +72,7 @@ dataset_path/
     └── ...
 ```
 
-### Inference Dataset
+### 🚀 Inference Dataset
 
 Create a CSV file (e.g., `metadata.csv`) with the following columns:
 
@@ -68,11 +83,11 @@ prompt,vace_video,src_video
 "",./keyframes/vid_00002.mp4,./masked/vid_00002.mp4
 ```
 
-**Note:** There is an example in `./example_videos/metadata.csv` for inference.
+**📝 Note:** There is an example in `./example_videos/metadata.csv` for inference.
 
-## Inference
+## 🚀 Inference
 
-### Single GPU Inference
+### 💻 Single GPU Inference
 
 ```bash
 python infer_nova.py \
@@ -92,14 +107,14 @@ python infer_nova.py \
   --first_only
 ```
 
-**Key arguments:**
+**🔑 Key arguments:**
 - `--ckpt_path`: Path to trained checkpoint
 - `--num_samples`: Number of samples to generate
 - `--num_inference_steps`: Denoising steps (default 50)
 - `--first_only`: Use only the first cue frame for all cue positions, **if you have set multiple cue frames in the keyframes video, just omit this flag**
 - `--tiled`: Enable VAE tiling for GPU memory savings
 
-### Multi-GPU Inference
+### 🖥️ Multi-GPU Inference
 
 ```bash
 CUDA_VISIBLE_DEVICES=0,1,2,3 python infer_rank.py \
@@ -119,9 +134,9 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python infer_rank.py \
   --width 832
 ```
 
-## Training
+## 🏋️ Training
 
-### 1. Data Processing
+### 1️⃣ Data Processing
 
 First, preprocess the dataset and encode videos to latents:
 
@@ -140,7 +155,7 @@ python train_nova.py \
   --width 832
 ```
 
-### 2. Training
+### 2️⃣ Training
 
 After data processing, start training:
 
@@ -158,7 +173,7 @@ python train_nova.py \
   --use_gradient_checkpointing
 ```
 
-**Key arguments:**
+**🔑 Key arguments:**
 - `--dataset_path`: Path to your dataset directory
 - `--output_path`: Directory to save checkpoints
 - `--batch_size`: Batch size (adjust based on GPU memory)
@@ -167,7 +182,7 @@ python train_nova.py \
 - `--steps_per_epoch`: Steps per epoch
 - `--resume_ckpt_path`: Resume from checkpoint (optional)
 
-## Model Paths
+## 📂 Model Paths
 
 The following placeholders should be replaced with actual paths to pre-trained models:
 
@@ -179,7 +194,7 @@ The following placeholders should be replaced with actual paths to pre-trained m
 | `dit_path` | DiT model (diffusion_pytorch_model.safetensors) |
 | `ckpt_path` | Trained checkpoint (stepXXX.ckpt) |
 
-## Output
+## 💾 Output
 
 Inference results are saved to:
 - Combined comparison: `{output_path}/{name}_epoch{epoch_idx}.mp4`
