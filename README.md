@@ -5,11 +5,13 @@
 [uv](https://docs.astral.sh/uv/) is a fast Python package manager. Install it first, then set up the project:
 
 ```bash
-# Initialize project with Python 3.12
 uv init --python 3.12
-
-# Create virtual environment
 uv venv
+
+# Activate virtual environment (bash/zsh)
+source .venv/bin/activate
+# Or for fish shell:
+# source .venv/bin/activate.fish
 
 # Install dependencies
 uv add -r requirements.txt
