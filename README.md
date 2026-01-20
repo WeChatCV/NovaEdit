@@ -1,7 +1,5 @@
 # NOVA Video Editing
 
-NOVA is a video editing project built on top of DiffSynth-Studio, focusing on video generation using diffusion models based on the Wan2.1-Fun-1.3B-InP model architecture.
-
 ## Installation
 
 ```bash
@@ -17,6 +15,12 @@ python download_wan2.1.py
 ```
 
 ## Dataset Format
+### Create Keyframes Videos
+We assume all the videos for training and inference are 81 frames long.
+
+For the keyframes video:
+  - In training, extract the 0, 10, 20, 30, 40, 50, 60, 70, 80 frames from the source video to create the keyframes video. You can left the remaining frames black or blank.
+  - In inference, you can set the 0 frame as the edited first frame via a image editing model. The 10, 20, 30, 40, 50, 60, 70, 80 frames can be also set as the edited frames from the source video (optional), and the remaining frames can be left black or blank.
 
 ### Training Dataset
 
@@ -140,7 +144,7 @@ python infer_nova.py \
 - `--ckpt_path`: Path to trained checkpoint
 - `--num_samples`: Number of samples to generate
 - `--num_inference_steps`: Denoising steps (default 50)
-- `--first_only`: Use only the first cue frame for all cue positions
+- `--first_only`: Use only the first cue frame for all cue positions, **if you have set multiple cue frames in the keyframes video, just omit this flag**
 - `--tiled`: Enable VAE tiling for GPU memory savings
 
 ### Multi-GPU Inference
