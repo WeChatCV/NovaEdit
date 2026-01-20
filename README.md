@@ -68,7 +68,56 @@ prompt,vace_video,src_video
 "",./keyframes/vid_00002.mp4,./masked/vid_00002.mp4
 ```
 
-**Note:** Remove the `video` (ground truth) column for inference.
+**Note:** There is an example in `./example_videos/metadata.csv` for inference.
+
+## Inference
+
+### Single GPU Inference
+
+```bash
+python infer_nova.py \
+  --dataset_path ./example_videos \
+  --metadata_file_name metadata.csv \
+  --ckpt_path /path/to/checkpoints/stepXXX.ckpt \
+  --output_path ./inference_results \
+  --text_encoder_path /path/to/models_t5_umt5-xxl-enc-bf16.pth \
+  --image_encoder_path /path/to/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
+  --vae_path /path/to/Wan2.1_VAE.pth \
+  --dit_path /path/to/diffusion_pytorch_model.safetensors \
+  --num_samples 5 \
+  --num_inference_steps 50 \
+  --num_frames 81 \
+  --height 480 \
+  --width 832 \
+  --first_only
+```
+
+**Key arguments:**
+- `--ckpt_path`: Path to trained checkpoint
+- `--num_samples`: Number of samples to generate
+- `--num_inference_steps`: Denoising steps (default 50)
+- `--first_only`: Use only the first cue frame for all cue positions, **if you have set multiple cue frames in the keyframes video, just omit this flag**
+- `--tiled`: Enable VAE tiling for GPU memory savings
+
+### Multi-GPU Inference
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 python infer_rank.py \
+  --rank 0 \
+  --world_size 4 \
+  --dataset_path /path/to/your/dataset \
+  --metadata_file_name metadata.csv \
+  --ckpt_path /path/to/checkpoints/stepXXX.ckpt \
+  --output_path ./inference_results \
+  --text_encoder_path /path/to/models_t5_umt5-xxl-enc-bf16.pth \
+  --image_encoder_path /path/to/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
+  --vae_path /path/to/Wan2.1_VAE.pth \
+  --dit_path /path/to/diffusion_pytorch_model.safetensors \
+  --num_samples 10 \
+  --num_frames 81 \
+  --height 480 \
+  --width 832
+```
 
 ## Training
 
@@ -117,55 +166,6 @@ python train_nova.py \
 - `--max_epochs`: Number of training epochs
 - `--steps_per_epoch`: Steps per epoch
 - `--resume_ckpt_path`: Resume from checkpoint (optional)
-
-## Inference
-
-### Single GPU Inference
-
-```bash
-python infer_nova.py \
-  --dataset_path /path/to/your/inference/dataset \
-  --metadata_file_name metadata.csv \
-  --ckpt_path /path/to/checkpoints/stepXXX.ckpt \
-  --output_path ./inference_results \
-  --text_encoder_path /path/to/models_t5_umt5-xxl-enc-bf16.pth \
-  --image_encoder_path /path/to/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
-  --vae_path /path/to/Wan2.1_VAE.pth \
-  --dit_path /path/to/diffusion_pytorch_model.safetensors \
-  --num_samples 5 \
-  --num_inference_steps 50 \
-  --num_frames 81 \
-  --height 480 \
-  --width 832 \
-  --first_only
-```
-
-**Key arguments:**
-- `--ckpt_path`: Path to trained checkpoint
-- `--num_samples`: Number of samples to generate
-- `--num_inference_steps`: Denoising steps (default 50)
-- `--first_only`: Use only the first cue frame for all cue positions, **if you have set multiple cue frames in the keyframes video, just omit this flag**
-- `--tiled`: Enable VAE tiling for GPU memory savings
-
-### Multi-GPU Inference
-
-```bash
-CUDA_VISIBLE_DEVICES=0,1,2,3 python infer_rank.py \
-  --rank 0 \
-  --world_size 4 \
-  --dataset_path /path/to/your/dataset \
-  --metadata_file_name metadata.csv \
-  --ckpt_path /path/to/checkpoints/stepXXX.ckpt \
-  --output_path ./inference_results \
-  --text_encoder_path /path/to/models_t5_umt5-xxl-enc-bf16.pth \
-  --image_encoder_path /path/to/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
-  --vae_path /path/to/Wan2.1_VAE.pth \
-  --dit_path /path/to/diffusion_pytorch_model.safetensors \
-  --num_samples 10 \
-  --num_frames 81 \
-  --height 480 \
-  --width 832
-```
 
 ## Model Paths
 
