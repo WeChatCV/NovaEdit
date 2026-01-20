@@ -1,49 +1,59 @@
 #!/bin/bash
 set -euo pipefail
 
+# TODO: Replace with your actual paths
+# - DATASET_PATH: Path to your inference dataset directory
+# - CKPT_PATH: Path to trained checkpoint directory
+# - MODEL_PATH: Path to directory containing pre-trained models
+# - OUTPUT_PATH: Path to save inference results
+
+DATASET_PATH=${DATASET_PATH:-"/path/to/your/inference/dataset"}
+MODEL_PATH=${MODEL_PATH:-"/path/to/models"}
+OUTPUT_PATH=${OUTPUT_PATH:-"./inference_results"}
+
+# Model files (relative to MODEL_PATH or absolute paths)
+TEXT_ENCODER_PATH=${TEXT_ENCODER_PATH:-"${MODEL_PATH}/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth"}
+IMAGE_ENCODER_PATH=${IMAGE_ENCODER_PATH:-"${MODEL_PATH}/PAI/Wan2.1-Fun-1.3B-InP/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth"}
+VAE_PATH=${VAE_PATH:-"${MODEL_PATH}/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth"}
+DIT_PATH=${DIT_PATH:-"${MODEL_PATH}/PAI/Wan2.1-Fun-1.3B-InP/diffusion_pytorch_model.safetensors"}
+
 # -------------------- Checkpoint Configuration --------------------
-TARGET_STEP=${TARGET_STEP:-252}
-CKPT_FILE="./models/pexels5k_zoom_rope_i2v_random_onlyfirst/lightning_logs/version_1/checkpoints/step${TARGET_STEP}.ckpt"
+CKPT_PATH=${CKPT_PATH:-"/path/to/checkpoints"}
+TARGET_STEP=${TARGET_STEP:-1000}
+CKPT_FILE="${CKPT_PATH}/step${TARGET_STEP}.ckpt"
 EPOCH_IDX=${EPOCH_IDX:-"step${TARGET_STEP}"}
 
 if [ ! -f "$CKPT_FILE" ]; then
-  echo "❌ Error: checkpoint $CKPT_FILE not found"
+  echo "Error: checkpoint $CKPT_FILE not found"
   exit 1
 fi
 
 # -------------------- Configurable Parameters --------------------
-DATASET_PATH=${DATASET_PATH:-"../Grounded-SAM-2/outputs_flux"}
-METADATA_FILE_NAME=${METADATA_FILE_NAME:-"video_pairs.csv"}
-OUTPUT_PATH=${OUTPUT_PATH:-"./inference_results/data_flux_parallel"}
-NUM_SAMPLES=${NUM_SAMPLES:-265}
+METADATA_FILE_NAME=${METADATA_FILE_NAME:-"metadata.csv"}
+NUM_SAMPLES=${NUM_SAMPLES:-10}
 NUM_INFERENCE_STEPS=${NUM_INFERENCE_STEPS:-50}
-
-TEXT_ENCODER_PATH=${TEXT_ENCODER_PATH:-"/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth"}
-IMAGE_ENCODER_PATH=${IMAGE_ENCODER_PATH:-"/models/PAI/Wan2.1-Fun-1.3B-InP/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth"}
-VAE_PATH=${VAE_PATH:-"/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth"}
-DIT_PATH=${DIT_PATH:-"/models/PAI/Wan2.1-Fun-1.3B-InP/diffusion_pytorch_model.safetensors"}
 
 NUM_FRAMES=${NUM_FRAMES:-81}
 HEIGHT=${HEIGHT:-480}
 WIDTH=${WIDTH:-832}
 
-NUM_GPUS=${NUM_GPUS:-8}
-GPU_IDS_STRING=${GPU_IDS_STRING:-"0 1 2 3 4 5 6 7"}
+NUM_GPUS=${NUM_GPUS:-4}
+GPU_IDS_STRING=${GPU_IDS_STRING:-"0 1 2 3"}
 IFS=' ' read -r -a GPU_IDS <<< "$GPU_IDS_STRING"
 
 if [ "${#GPU_IDS[@]}" -ne "$NUM_GPUS" ]; then
-  echo "❌ Error: NUM_GPUS=$NUM_GPUS but provided ${#GPU_IDS[@]} GPU IDs (GPU_IDS_STRING=\"$GPU_IDS_STRING\")."
+  echo "Error: NUM_GPUS=$NUM_GPUS but provided ${#GPU_IDS[@]} GPU IDs"
   exit 1
 fi
 
-LOG_DIR=${LOG_DIR:-"./logs/infer_rank"}
+LOG_DIR=${LOG_DIR:-"./logs/infer_parallel"}
 mkdir -p "$LOG_DIR"
 
 REPO_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PYTHON_SCRIPT="$REPO_ROOT/infer_rank.py"
 
 if [ ! -f "$PYTHON_SCRIPT" ]; then
-  echo "❌ Error: infer_rank.py not found at $PYTHON_SCRIPT"
+  echo "Error: infer_rank.py not found at $PYTHON_SCRIPT"
   exit 1
 fi
 
@@ -52,14 +62,10 @@ RUN_ID="rank_infer_${TIMESTAMP}"
 RUN_LOG_DIR="$LOG_DIR/$RUN_ID"
 mkdir -p "$RUN_LOG_DIR"
 
-echo "🚀 Launching parallel inference"
+echo "Launching parallel inference"
 echo "  Checkpoint : $CKPT_FILE"
-echo "  Epoch tag  : $EPOCH_IDX"
 echo "  Dataset    : $DATASET_PATH"
-echo "  Metadata   : $METADATA_FILE_NAME"
 echo "  Output dir : $OUTPUT_PATH"
-echo "  Samples    : $NUM_SAMPLES (per-rank auto split)"
-echo "  Logs       : $RUN_LOG_DIR"
 
 declare -a PIDS
 
@@ -67,9 +73,9 @@ for (( rank=0; rank<NUM_GPUS; rank++ )); do
   GPU_ID=${GPU_IDS[$rank]}
   LOG_FILE="$RUN_LOG_DIR/rank${rank}.log"
 
-  echo "[Rank $rank] -> GPU $GPU_ID | log: $LOG_FILE"
+  echo "[Rank $rank] -> GPU $GPU_ID"
 
-  CUDA_VISIBLE_DEVICES=$GPU_ID nohup /mnt/shanghai3cephs/tianlinpan/miniconda3/envs/diffnew/bin/python "$PYTHON_SCRIPT" \
+  CUDA_VISIBLE_DEVICES=$GPU_ID nohup python "$PYTHON_SCRIPT" \
     --dataset_path "$DATASET_PATH" \
     --metadata_file_name "$METADATA_FILE_NAME" \
     --ckpt_path "$CKPT_FILE" \
@@ -94,7 +100,7 @@ for (( rank=0; rank<NUM_GPUS; rank++ )); do
 done
 
 echo
-echo "💡 Monitor logs with: tail -n 20 -f $RUN_LOG_DIR/rank*.log"
+echo "Monitor logs with: tail -n 20 -f $RUN_LOG_DIR/rank*.log"
 echo
 
 trap 'echo "Stopping all ranks"; kill ${PIDS[*]} 2>/dev/null || true' INT TERM
@@ -102,14 +108,13 @@ trap 'echo "Stopping all ranks"; kill ${PIDS[*]} 2>/dev/null || true' INT TERM
 FAIL=0
 for pid in "${PIDS[@]}"; do
   if ! wait "$pid"; then
-    echo "❌ Process $pid failed"
+    echo "Process $pid failed"
     FAIL=1
   fi
 done
 
 if [ "$FAIL" -eq 0 ]; then
-  echo "✅ All ranks finished successfully. Results under $OUTPUT_PATH"
-  echo "Logs saved to $RUN_LOG_DIR"
+  echo "All ranks finished successfully. Results under $OUTPUT_PATH"
 else
-  echo "⚠️ Some ranks failed. Check logs in $RUN_LOG_DIR"
+  echo "Some ranks failed. Check logs in $RUN_LOG_DIR"
 fi
