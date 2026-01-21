@@ -31,7 +31,53 @@ Download the required pre-trained models:
 python download_wan2.1.py
 ```
 
-## 📁 Dataset Format
+## 🎮 Gradio Demo
+
+A web-based interactive demo for video editing using NOVA.
+
+### ⚙️ Configuration
+
+Before launching the demo, configure the model paths in `gradio_demo/demo.py`:
+
+**1. Flux Model Path**:
+```python
+FLUX_MODEL_PATH = "/path/to/flux-kontext"
+```
+
+**2. Nova Pipeline Paths**:
+```python
+CKPT_PATH = "/path/to/nova/checkpoints"
+MODEL_PATH = "/path/to/wan/models"
+TARGET_STEP = 252  # Set your checkpoint step
+```
+
+**Required Models:**
+- Flux-Kontext model for image editing
+- Wan 2.1 models (text encoder, image encoder, VAE, DiT)
+- Trained Nova checkpoint (stepXXX.ckpt)
+
+### 🚀 Launch the Demo
+
+```bash
+cd gradio_demo
+python demo.py
+```
+
+The demo will start at `http://0.0.0.0:8081`
+
+### 📋 Usage Workflow
+
+1. **Upload Video**: Upload a source video (at least 81 frames)
+2. **Extract First Frame**: Click to extract the first frame for segmentation
+3. **Segment Object**: Click on the first frame to mark the target object
+   - Use **Positive** clicks for object areas
+   - Use **Negative** clicks to refine boundaries
+4. **Save BBox**: Export the bounding box image for editing
+5. **Image Edit (Flux)**: Enter a prompt to edit the bounding box image (or you can edit it manually, and upload the edited image)
+6. **Start Tracking**: Track the segmented object through the video
+7. **Run Nova Inference**: Generate the final edited video
+
+### 📁 Dataset Format
 ### 🎬 Create Keyframes Videos
 We assume all the videos for training and inference are 81 frames long.
 
