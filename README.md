@@ -37,6 +37,8 @@ python download_wan2.1.py
 
 A web-based interactive demo for video editing using NOVA.
 
+https://github.com/user-attachments/assets/dbde0eb4-58bc-4491-9b31-5a981e15ae16
+
 ### 🖥️ System Requirements
 We recommend using a machine with at least 80GB VRAM for smooth operation.
 
