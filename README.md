@@ -31,9 +31,16 @@ Download the required pre-trained models:
 python download_wan2.1.py
 ```
 
+---
+
 ## 🎮 Gradio Demo
 
 A web-based interactive demo for video editing using NOVA.
+
+### 🖥️ System Requirements
+We recommend using a machine with at least 80GB VRAM for smooth operation.
+
+24GB VRAM machines can also run the demo, but you may need to mannually offload the model for SAM2 and FLUX.1 Kontext during inference in `gradio_demo/demo.py`.
 
 ### ⚙️ Configuration
 
@@ -77,7 +84,8 @@ The demo will start at `http://0.0.0.0:8081`
 6. **Start Tracking**: Track the segmented object through the video
 7. **Run Nova Inference**: Generate the final edited video
 
-### 📁 Dataset Format
+---
+## 📁 Dataset Format
 ### 🎬 Create Keyframes Videos
 We assume all the videos for training and inference are 81 frames long.
 
@@ -133,7 +141,8 @@ prompt,vace_video,src_video
 
 **📝 Note:** There is an example in `./example_videos/metadata.csv` for inference.
 
-## 🚀 Inference
+---
+## 🚀 Inference in CLI
 
 ### 💻 Single GPU Inference
 
@@ -182,6 +191,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python infer_rank.py \
   --width 832
 ```
 
+---
 ## 🏋️ Training
 
 ### 1️⃣ Data Processing
@@ -230,6 +240,7 @@ python train_nova.py \
 - `--steps_per_epoch`: Steps per epoch
 - `--resume_ckpt_path`: Resume from checkpoint (optional)
 
+---
 ## 📂 Model Paths
 
 The following placeholders should be replaced with actual paths to pre-trained models:
