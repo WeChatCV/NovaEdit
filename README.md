@@ -260,3 +260,11 @@ The following placeholders should be replaced with actual paths to pre-trained m
 Inference results are saved to:
 - Combined comparison: `{output_path}/{name}_epoch{epoch_idx}.mp4`
 - Individual results: `{output_path}/results/{name}_epoch{epoch_idx}.mp4`
+
+---
+
+## 🙏 Acknowledgements
+
+We thank the following repos for their contributions:
+- [KlingTeam/ReCamMaster](https://github.com/KlingTeam/ReCamMaster) for the training framework
+- [zibojia/MiniMax-Remover](https://github.com/zibojia/MiniMax-Remover) for their gradio demo template
