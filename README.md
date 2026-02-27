@@ -4,6 +4,7 @@
     NOVA: Sparse Control, Dense Synthesis for Pair-Free Video Editing (CVPR 2026)
   </h1>
 
+  [![🤗 HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Model-orange)](https://huggingface.co/ldiex/NovaEdit)
 </div>
 
 ![teaser](assets/teaser.jpg)
