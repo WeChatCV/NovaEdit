@@ -1,4 +1,12 @@
-# 🎬 NOVA Video Editing
+<div align="center">
+
+  <h1>
+    NOVA: Sparse Control, Dense Synthesis for Pair-Free Video Editing (CVPR 2026)
+  </h1>
+
+</div>
+
+![teaser](assets/teaser.jpg)
 ## 🏗️ Architecture Note
 
 The paper describes a WAN VACE 1.3B-based design with a dedicated sparse VACE branch, a copied dense DiT branch, and trainable cross-attention (CA) modules connecting them. The current codebase simplifies this to a single **WAN 1.3B Fun InP** model where source, cue (keyframe), and target latents are concatenated along the temporal axis, with RoPE used to distinguish their roles. Reasons for the change:
