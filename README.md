@@ -1,4 +1,14 @@
 # 🎬 NOVA Video Editing
+## 🏗️ Architecture Note
+
+The paper describes a WAN VACE 1.3B-based design with a dedicated sparse VACE branch, a copied dense DiT branch, and trainable cross-attention (CA) modules connecting them. The current codebase simplifies this to a single **WAN 1.3B Fun InP** model where source, cue (keyframe), and target latents are concatenated along the temporal axis, with RoPE used to distinguish their roles. Reasons for the change:
+
+- **Better color consistency**: VACE pre-trained weights introduced color artifacts
+- **Better structural edit support**: ControlNet-style conditioning is too rigid for edits with large structural changes
+- **Simpler single-keyframe support**: the new design naturally degrades to standard image-to-video when only one keyframe is provided
+- **Optional coarse mask**: a rough rectangular mask of the edit region can be supplied to improve editing accuracy (not required, and does not need to be precise)
+
+Despite the arch simplification, our **pair-free training via degradation simulation** with sparse keyframe control and dense source video synthesis remains unchanged from the paper.
 
 ## 📦 Installation
 
