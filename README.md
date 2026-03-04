@@ -5,8 +5,8 @@
   </h1>
   
   <h3>CVPR 2026</h3>
-
-  [![🤗 HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Model-orange)](https://huggingface.co/ldiex/NovaEdit)
+  
+  [![arXiv](https://img.shields.io/badge/arXiv-2603.02802-b31b1b)](https://arxiv.org/abs/2603.02802) [![🤗 HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Model-orange)](https://huggingface.co/ldiex/NovaEdit)
 </div>
 
 ![teaser](assets/teaser.jpg)
